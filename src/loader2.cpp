@@ -295,25 +295,6 @@ void load_data(int argc, char **argv)
     pal=NULL;
     color_table=NULL;
 
-# if 0
-    int should_save_sd_cache = 0;
-
-    char *cachepath;
-    cachepath = (char *)malloc( strlen( get_save_filename_prefix() ) + 12 + 1 );
-    sprintf( cachepath, "%ssd_cache.tmp", get_save_filename_prefix() );
-
-    bFILE *load = open_file( cachepath, "rb" );
-    if( !load->open_failure() )
-    {
-        sd_cache.load( load );
-    }
-    else
-    {
-        should_save_sd_cache = 1;
-    }
-    delete load;
-#endif
-
   // don't let them specify a startup file we are connect elsewhere
   if (!net_start())
   {

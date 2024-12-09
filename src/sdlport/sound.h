@@ -15,6 +15,8 @@
 #   include "SDL_mixer.h"
 #endif
 
+#include "common.h"
+
 /* options are passed via command line */
 
 #define SFX_INITIALIZED    1

@@ -20,6 +20,7 @@ endif()
 
 add_executable(abuse
     common.h
+    file_utils.cpp file_utils.h
     lol/matrix.cpp lol/matrix.h
     lol/timer.cpp lol/timer.h
     specache.cpp specache.h
@@ -110,7 +111,7 @@ if(APPLE)
     target_link_libraries(abuse "-framework CoreFoundation")
 endif()
 
-add_executable(abuse-tool tool/abuse-tool.cpp crc.cpp crc.h)
+# add_executable(abuse-tool tool/abuse-tool.cpp crc.cpp crc.h)
 
 
 # target_link_libraries(abuse-tool imlib)

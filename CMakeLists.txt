@@ -1,11 +1,15 @@
 cmake_minimum_required(VERSION 2.8.12)
 
 project(abuse C CXX)
-set(abuse_VERSION 0.9.1)
-set(abuse_VERSION_MAJOR 0)
-set(abuse_VERSION_MINOR 9)
-set(abuse_VERSION_PATCH 1)
+set(abuse_VERSION 2025.1)
+set(abuse_VERSION_MAJOR 2025)
+set(abuse_VERSION_MINOR 1)
+set(abuse_VERSION_PATCH 0)
 set(abuse_VERSION_TWEAK 0)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Detect the platform, as there's quite a bit of platform variation
 

@@ -340,12 +340,9 @@ static void create_volume_window()
 
 void save_difficulty()
 {
-	std::string path_fin = get_save_filename_prefix();
-	path_fin += "hardness.lsp";
+  FILE *fp = open_FILE("hardness.lsp", "wb");
 
-	FILE *fp = open_FILE(path_fin.c_str(),"wb");
-
-	if(!fp) dprintf("Unable to write to file hardness.lsp\n");
+  if(!fp) dprintf("Unable to write to file hardness.lsp\n");
 	else
 	{
 		fprintf(fp,"(setf difficulty '");
@@ -456,7 +453,7 @@ void menu_handler(Event &ev, InputManager *inm)
       if (got_level)
       {
         char name[255];
-        sprintf(name,"%ssave%04d.spe", get_save_filename_prefix(), got_level);
+        sprintf(name,"save%04d.spe", got_level);
 
         the_game->load_level(name);
         the_game->set_state(RUN_STATE);
@@ -560,90 +557,99 @@ static ico_button *load_icon(int num, int id, int x, int y, int &h, ifield *next
 
 ico_button *make_default_buttons(int x, int &y, ico_button *append_list)
 {
-	//AR main menu buttons, reenabled the credits button
-	
-	int h;
-	int diff_on;
+  int h;
+  int diff_on;
 
-	if(DEFINEDP(symbol_value(l_difficulty)))
-	{
-		if(symbol_value(l_difficulty)==l_extreme)	diff_on = 3;
-		else if(symbol_value(l_difficulty)==l_hard)	diff_on = 2;
-		else if(symbol_value(l_difficulty)==l_easy)	diff_on = 0;
-		else diff_on = 1;
-	}
-	else diff_on = 3;
+  if (DEFINEDP(symbol_value(l_difficulty)))
+  {
+    if (symbol_value(l_difficulty) == l_extreme)
+      diff_on = 3;
+    else if (symbol_value(l_difficulty) == l_hard)
+      diff_on = 2;
+    else if (symbol_value(l_difficulty) == l_easy)
+      diff_on = 0;
+    else
+      diff_on = 1;
+  }
+  else
+    diff_on = 3;
 
-	ico_button *start = load_icon(0,ID_START_GAME,x,y,h,NULL,"ic_start");
-	y += h;
+  ico_button *start = load_icon(0, ID_START_GAME, x, y, h, NULL, "ic_start");
+  y += h;
 
-	//difficulty/hardness icon
-	ico_switch_button *set = NULL;
-	if(!main_net_cfg || (main_net_cfg->state!=net_configuration::SERVER && main_net_cfg->state!=net_configuration::CLIENT))
-	{
-		set = new ico_switch_button(
-			x,y,ID_NULL,diff_on,
-			load_icon(3,ID_EASY,x,y,h,
-			load_icon(8,ID_MEDIUM,x,y,h,
-			load_icon(9,ID_HARD,x,y,h,
-			load_icon(10,ID_EXTREME,x,y,h,
-			NULL,"ic_extreme"),"ic_hard"),"ic_medium"),"ic_easy"),NULL);
-		y += h;
-	}
+  // difficulty/hardness icon
+  ico_switch_button *set = NULL;
+  if (!main_net_cfg || (main_net_cfg->state != net_configuration::SERVER && main_net_cfg->state != net_configuration::CLIENT))
+  {
+    set = new ico_switch_button(
+        x, y, ID_NULL, diff_on,
+        load_icon(3, ID_EASY, x, y, h,
+                  load_icon(8, ID_MEDIUM, x, y, h,
+                            load_icon(9, ID_HARD, x, y, h,
+                                      load_icon(10, ID_EXTREME, x, y, h,
+                                                NULL, "ic_extreme"),
+                                      "ic_hard"),
+                            "ic_medium"),
+                  "ic_easy"),
+        NULL);
+    y += h;
+  }
 
-	ico_button *color = load_icon(4,ID_LIGHT_OFF,x,y,h,NULL,"ic_gamma");
-	y += h;
+  ico_button *color = load_icon(4, ID_LIGHT_OFF, x, y, h, NULL, "ic_gamma");
+  y += h;
 
-	ico_button *volume = load_icon(5,ID_VOLUME,x,y,h,NULL,"ic_volume");
-	y += h;
+  ico_button *volume = load_icon(5, ID_VOLUME, x, y, h, NULL, "ic_volume");
+  y += h;
 
-	//AR MP doesn't work, so I disabled the button, and with credits it doesn't fit at 320x200
-	/*ico_button *multiplayer = NULL;
-	if(prot)
-	{
-		multiplayer = load_icon(11,ID_NETWORKING,x,y,h,NULL,"ic_networking");
-		y += h;
-	}*/
+  // Multiplayer button
+  ico_button *multiplayer = NULL;
+  if (prot)
+  {
+    multiplayer = load_icon(11, ID_NETWORKING, x, y, h, NULL, "ic_networking");
+    y += h;
+  }
 
-	//credits in full version
-	ico_button *sell = load_icon(2,ID_SHOW_SELL,x,y,h,NULL,"ic_sell");
-	y += h;  
+  // credits in full version
+  ico_button *sell = load_icon(2, ID_SHOW_SELL, x, y, h, NULL, "ic_sell");
+  y += h;
 
-	ico_button *quit = load_icon(6,ID_QUIT,x,y,h,NULL,"ic_quit");
-	y += h;
+  ico_button *quit = load_icon(6, ID_QUIT, x, y, h, NULL, "ic_quit");
+  y += h;
 
-	//connect buttons/make list
+  // connect buttons/make list
+  if (set)
+  {
+    start->next = set;
+    set->next = color;
+  }
+  else
+    start->next = color;
 
-	if(set)
-	{
-		start->next = set;
-		set->next = color;
-	}
-	else start->next = color;
+  color->next = volume;
 
-	color->next = volume;
+  if (prot)
+  {
+    volume->next = multiplayer;
+    multiplayer->next = sell;
+  }
+  else
+    volume->next = sell;
 
-	/*if(prot)
-	{
-		volume->next = multiplayer;
-		multiplayer->next = sell;
-	}
-	else */volume->next = sell;
+  sell->next = quit;
 
-	sell->next = quit;
+  ico_button *list = append_list;
 
-	ico_button *list = append_list;
+  if (append_list)
+  {
+    while (append_list->next)
+      append_list = (ico_button *)append_list->next;
 
-	if(append_list)
-	{
-		while(append_list->next)
-			append_list = (ico_button*)append_list->next;
+    append_list->next = start;
+  }
+  else
+    list = start;
 
-		append_list->next = start;
-	}
-	else list = start;
-
-	return list;
+  return list;
 }
 
 ico_button *make_conditional_buttons(int x, int &y)
@@ -691,7 +697,7 @@ void main_menu()
 
 	if(current_level) move_up++;
 	if(show_load_icon()) move_up++;
-	//if(prot) move_up++;//multiplayer button
+	if(prot) move_up++;//multiplayer button
 
 	if(settings.hires)
 	{

@@ -23,7 +23,6 @@
 #include "morpher.h"
 #include "chars.h"
 
-
 class view;
 class game_object;
 class light_source;
@@ -116,10 +115,10 @@ public:
   void set_yacel(int32_t ya)      { Yacel=ya; }
   void set_fx(uint8_t x)          { Fx=x; }
   void set_fy(uint8_t y)          { Fy=y; }
-  void set_fxvel(uint8_t xv)      { Fxvel=abs(xv); }
-  void set_fyvel(uint8_t yv)      { Fyvel=abs(yv); }
-  void set_fxacel(uint8_t xa)     { Fxacel=abs(xa); }
-  void set_fyacel(uint8_t ya)     { Fyacel=abs(ya); }
+  void set_fxvel(uint8_t xv)      { Fxvel=xv; }
+  void set_fyvel(uint8_t yv)      { Fyvel=yv; }
+  void set_fxacel(uint8_t xa)     { Fxacel=xa; }
+  void set_fyacel(uint8_t ya)     { Fyacel=ya; }
   void set_aitype(uint8_t t)      { Aitype=t; }
   void set_aistate(uint16_t s)      { Aistate=s; }
   void set_aistate_time(uint16_t t) { Aistate_time=t; }
@@ -157,10 +156,3 @@ public:
 extern simple_object default_simple;
 
 #endif
-
-
-
-
-
-
-

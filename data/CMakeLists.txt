@@ -1,7 +1,6 @@
 INSTALL(FILES
     abuse.lsp
     edit.lsp
-    hardness.lsp
 DESTINATION ${ASSETDIR})
 
 # No idea what this was for
@@ -188,6 +187,9 @@ INSTALL(FILES
 DESTINATION ${ASSETDIR})
 
 # Check if we have the non-free data
+
+
+
 set(IGNORE_NONFREE off CACHE BOOL "ignore non-free music/SFX even if it exists")
 if(IGNORE_NONFREE)
     message(WARNING "Skipping non-free music (set to ignore)")
@@ -201,6 +203,17 @@ elseif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/music)
     DESTINATION ${ASSETDIR}/music)
 else()
     message(WARNING "Non-free music not found, it will not be included.")
+endif()
+
+if(IGNORE_NONFREE)
+    message(WARNING "Skipping non-free soundfonts (set to ignore)")
+elseif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/soundfonts)
+    message(WARNING "Non-free soundfonts found. Build will include non-free data!")
+    INSTALL(FILES
+        soundfonts/AWE64\ Gold\ Presets.sf2  soundfonts/Roland\ SC-55\ Presets.sf2
+    DESTINATION ${ASSETDIR}/soundfonts)
+else()
+    message(WARNING "Non-free soundfonts not found, sound will not be enabled.")
 endif()
 
 if(IGNORE_NONFREE)

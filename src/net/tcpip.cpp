@@ -12,6 +12,8 @@
 #   include "config.h"
 #endif
 
+#include "file_utils.h"
+
 #if HAVE_NETWORK
 
 #ifdef _AIX
@@ -39,9 +41,9 @@ static void net_log(char const *st, void *buf, long size)
   if (!log_file)
   {
     if (net_start())
-      log_file=fopen("/tmp/abuseclient.log","wb");
+      log_file=prefix_fopen("abuseclient.log","wb");
     else
-      log_file=fopen("/tmp/abuseserver.log","wb");
+      log_file=prefix_fopen("abuseserver.log","wb");
   }
 
 

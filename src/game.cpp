@@ -13,6 +13,8 @@
 #   include "config.h"
 #endif
 
+#include "common.h"
+
 #ifdef WIN32
 # include <WinSock2.h>
 # include <Windows.h>
@@ -108,22 +110,9 @@ tcpip_protocol tcpip;
 #endif
 
 FILE *open_FILE(char const *filename, char const *mode)
-{
-    /* FIXME: potential buffer overflow here */
-    char tmp_name[200];
-#ifdef WIN32
-    // Need to make sure it's not an absolute Windows path
-    if(get_filename_prefix() && filename[0] != '/' && (filename[0] != '\0' && filename[1] != ':'))
-#else
-    if(get_filename_prefix() && filename[0] != '/')
-#endif
-    {
-        sprintf(tmp_name, "%s %s", get_filename_prefix(), filename);
-    }
-    else
-        strcpy(tmp_name, filename);
+{    
     //printf("open_FILE(%s)\n", tmp_name);
-    return fopen(tmp_name, mode);
+    return prefix_fopen(filename, mode);
 }
 
 void handle_no_space()
@@ -1377,10 +1366,10 @@ Game::Game(int argc, char **argv)
   else dprintf("not detected\n");
 
     // Clean up that old crap
-    char *fastpath = (char *)malloc(strlen(get_save_filename_prefix()) + 13);
-    sprintf(fastpath, "%sfastload.dat", get_save_filename_prefix());
-    unlink(fastpath);
-    free(fastpath);
+    // char *fastpath = (char *)malloc(strlen(get_save_filename_prefix()) + 13);
+    // sprintf(fastpath, "%sfastload.dat", get_save_filename_prefix());
+    // unlink(fastpath);
+    // free(fastpath);
 
 //    ProfilerInit(collectDetailed, bestTimeBase, 2000, 200); //prof
     load_data(argc, argv);
@@ -1391,7 +1380,7 @@ Game::Game(int argc, char **argv)
 
   reset_keymap();                   // we think all the keys are up right now
   finished = false;
-
+  
   calc_light_table(pal);
 
   if(current_level == NULL && net_start())  // if we joined a net game get level from server
@@ -1405,12 +1394,12 @@ Game::Game(int argc, char **argv)
   }
 
   set_mode(argc, argv);
-  if(get_option("-2") && (xres < 639 || yres < 399))
-  {
-    close_graphics();
-    fprintf(stderr, "Resolution must be > 640x400 to use -2 option\n");
-    exit(0);
-  }
+  // if(get_option("-2") && (xres < 639 || yres < 399))
+  // {
+  //   close_graphics();
+  //   fprintf(stderr, "Resolution must be > 640x400 to use -2 option\n");
+  //   exit(0);
+  // }
   pal->load();
 
   recalc_local_view_space();   // now that we know what size the screen is...
@@ -2287,10 +2276,10 @@ void game_getter(char *st, int max)
 
 void show_startup()
 {
-    //dprintf("Abuse version %s\n", PACKAGE_VERSION);
+    dprintf("Abuse version %s\n", PACKAGE_VERSION);
 
 	//AR
-	printf( "Abuse version %s\n", "0.9a" );
+	// printf( "Abuse version %s\n", "0.9a" );
 }
 
 char *get_line(int open_braces)
@@ -2466,16 +2455,6 @@ int main(int argc, char *argv[])
     start_sound(argc, argv);
 
     stat_man = new text_status_manager();
-
-#if !defined __CELLOS_LV2__
-    // look to see if we are supposed to fetch the data elsewhere
-    if (getenv("ABUSE_PATH"))
-        set_filename_prefix(getenv("ABUSE_PATH"));
-
-    // look to see if we are supposed to save the data elsewhere
-    if (getenv("ABUSE_SAVE_PATH"))
-        set_save_filename_prefix(getenv("ABUSE_SAVE_PATH"));
-#endif
 
     jrand_init();
     jrand(); // so compiler doesn't complain

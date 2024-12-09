@@ -85,10 +85,6 @@ enum
 
 void set_spec_main_file(char const *filename, int search_order=SPEC_SEARCH_OUTSIDE_INSIDE);
 
-void set_filename_prefix(char const *prefix);
-char *get_filename_prefix();
-void set_save_filename_prefix(char const *prefix);
-char *get_save_filename_prefix();
 #define JFILE_CLONED 1
 
 class bFILE     // base file type which other files should be derived from (jFILE & NFS for now)

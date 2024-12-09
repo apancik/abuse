@@ -12,6 +12,8 @@
 #   include "config.h"
 #endif
 
+#include "file_utils.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL_config.h>//AR (#include <SDL_config.h>)
@@ -72,72 +74,11 @@ char const *spec_types[] =
 int total_files_open=0;
 char spec_main_file[100];
 
-static char *spec_prefix=NULL;
-static char *save_spec_prefix=NULL;
 
 static jFILE spec_main_jfile((FILE*)0);
 static int spec_main_fd = -1;
 static long spec_main_offset = -1;
 static spec_directory spec_main_sd;
-
-void set_filename_prefix(char const *prefix)
-{
-    if( spec_prefix )
-    {
-        free( spec_prefix );
-    }
-
-    if( prefix )
-    {
-        spec_prefix = strcpy( (char *)malloc( strlen( prefix ) + 2 ), prefix );
-        int len = strlen( prefix );
-        if( prefix[len - 1] != '\\' && prefix[len - 1] != '/')
-        {
-            spec_prefix[len] = PATH_SEPARATOR_CHAR;
-            spec_prefix[len + 1] = 0;
-        }
-    }
-    else
-    {
-        spec_prefix = NULL;
-    }
-}
-
-char *get_filename_prefix()
-{
-    return spec_prefix;
-}
-
-
-void set_save_filename_prefix(char const *save_prefix)
-{
-    if( save_spec_prefix )
-    {
-        free( save_spec_prefix );
-    }
-
-    if( save_prefix )
-    {
-        int len = strlen( save_prefix );
-        save_spec_prefix = (char *)malloc( len + 1 );
-        strcpy( save_spec_prefix, save_prefix );
-/* AK - Commented this out as it may cause problems
-        if( save_prefix[len - 1] != '\\' && save_prefix[len - 1] != '/' )
-        {
-            save_spec_prefix[len] = '/';
-            save_spec_prefix[len + 1] = '\0';
-        } */
-    }
-    else
-    {
-        save_spec_prefix = NULL;
-    }
-}
-
-char *get_save_filename_prefix()
-{
-  return save_spec_prefix;
-}
 
 int search_order=SPEC_SEARCH_OUTSIDE_INSIDE;
 
@@ -296,21 +237,7 @@ jFILE::jFILE(FILE *file_pointer)                       // assumes fp is at begin
 
 void jFILE::open_external(char const *filename, char const *mode, int flags)
 {
-  int skip_size=0;
-  char tmp_name[200];
-#ifdef WIN32
-  // Need to make sure it's not an absolute Windows path
-  if (spec_prefix && filename[0] != '/' && (filename[0] != '\0' && filename[1] != ':'))
-#else
-  if (spec_prefix && filename[0] != '/')
-#endif
-  {
-    sprintf(tmp_name,"%s%s",spec_prefix,filename);
-  }
-  else
-  {
-    strcpy(tmp_name,filename);
-  }
+  int skip_size=0; 
 
 //  int old_mask=umask(S_IRWXU | S_IRWXG | S_IRWXO);
   if (flags&O_WRONLY)
@@ -325,15 +252,15 @@ void jFILE::open_external(char const *filename, char const *mode, int flags)
     flags|=O_CREAT|O_RDWR;
 #ifdef WIN32
     //printf("Open %s flags %x\n", tmp_name, flags);
-    fd=open(tmp_name,flags,_S_IREAD | _S_IWRITE);
+    fd = prefix_open(filename, flags, _S_IREAD | _S_IWRITE);
 #else
-    fd=open(tmp_name,flags,S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+    fd = prefix_open(filename, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 #endif
   }
   else
   {
     //printf("Open %s flags %x\n", tmp_name, flags);
-    fd = open(tmp_name, flags);
+    fd = prefix_open(filename, flags);
   }
 
 //  umask(old_mask);

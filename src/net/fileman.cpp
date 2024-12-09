@@ -257,12 +257,12 @@ void file_manager::add_nfs_client(net_socket *sock)
   }
 
 #ifdef WIN32
-  int f=open(filename,flags,_S_IREAD | _S_IWRITE);
+  int f=prefix_open(filename,flags,_S_IREAD | _S_IWRITE);
 #else
-  int f=open(filename,flags,S_IRWXU | S_IRWXG | S_IRWXO);
+  int f=prefix_open(filename,flags,S_IRWXU | S_IRWXG | S_IRWXO);
 #endif
 
-  FILE *fp=fopen("open.log","ab");
+  FILE *fp=prefix_fopen("open.log","ab");
   fprintf(fp,"open file %s, fd=%d\n",filename,f);
   fclose(fp);
 
@@ -307,7 +307,8 @@ file_manager::remote_file::remote_file(net_socket *sock, char const *filename, c
   next=Next;
   open_local=0;
 
-  uint8_t sizes[3]={ CLIENT_NFS,strlen(filename)+1,strlen(mode)+1};
+  uint8_t sizes[3] = {CLIENT_NFS, static_cast<uint8_t>(strlen(filename) + 1), static_cast<uint8_t>(strlen(mode) + 1)};
+
   if (sock->write(sizes,3)!=3) { r_close("could not send open info"); return ; }
   if (sock->write(filename,sizes[1])!=sizes[1]) { r_close("could not send filename"); return ; }
   if (sock->write(mode,sizes[2])!=sizes[2]) { r_close("could not send mode"); return ; }
@@ -467,26 +468,12 @@ int file_manager::rf_open_file(char const *&filename, char const *mode)
     }
 #endif
     mode++;
-  }
-
-  char tmp_name[200];
-#ifdef WIN32
-  if (get_filename_prefix() && filename[0] != '/' && (filename[0] != '\0' && filename[1] != ':'))
-#else
-  if (get_filename_prefix() && filename[0] != '/')
-#endif
-  {
-    sprintf(tmp_name,"%s%s",get_filename_prefix(),filename);
-  }
-  else
-  {
-    strcpy(tmp_name,filename);
-  }
+  }  
 
 #ifdef WIN32
-  int f = open(tmp_name, flags, S_IREAD|S_IWRITE);
+  int f = prefix_open(filename, flags, S_IREAD|S_IWRITE);
 #else
-  int f=open(tmp_name,flags,S_IRWXU | S_IRWXG | S_IRWXO);
+  int f = prefix_open(filename, flags, S_IRWXU | S_IRWXG | S_IRWXO);
 #endif
   if (f>=0)
   { close(f);

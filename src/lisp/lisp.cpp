@@ -2342,16 +2342,16 @@ LObject *LSysFunction::EvalFunction(LList *arg_list)
         if (fun_number == SYS_FUNC_LOCAL_LOAD)
         {
             // A special test for gamma.lsp
-            if (strcmp(st, "gamma.lsp") == 0)
-            {
-                char *gammapath;
-                gammapath = (char *)malloc(strlen(get_save_filename_prefix()) + 9 + 1);
-                sprintf(gammapath, "%sgamma.lsp", get_save_filename_prefix());
-                fp = new jFILE(gammapath, "rb");
-                free(gammapath);
-            }
-            else
-                fp = new jFILE(st, "rb");
+            // if (strcmp(st, "gamma.lsp") == 0)
+            // {
+            //     // char *gammapath;
+            //     // gammapath = (char *)malloc(strlen(get_save_filename_prefix()) + 9 + 1);
+            //     // sprintf(gammapath, "%sgamma.lsp", get_save_filename_prefix());
+            //     fp = new jFILE("gamma.lsp", "rb");
+            //     // free(gammapath);
+            // }
+            // else
+            fp = new jFILE(st, "rb");
         }
         else
             fp = open_file(st, "rb");
@@ -2531,7 +2531,7 @@ LObject *LSysFunction::EvalFunction(LList *arg_list)
     case SYS_FUNC_WRITE_PROFILE:
     {
         char *fn = lstring_value(CAR(arg_list)->Eval());
-        FILE *fp = fopen(fn, "wb");
+        FILE *fp = prefix_fopen(fn, "wb");
         if (!fp)
             lbreak("could not open %s for writing", fn);
         else

@@ -38,7 +38,6 @@
 
 extern SDL_Window *window;
 extern SDL_Surface *surface;
-extern flags_struct flags;
 
 extern Settings settings;
 extern int get_key_binding(char const *dir, int i);
@@ -47,8 +46,8 @@ extern std::string get_ctr_binding(std::string c);
 extern int mouse_xpad, mouse_ypad, mouse_xscale, mouse_yscale;
 short mouse_buttons[5] = { 0, 0, 0, 0, 0 };
 // From setup.cpp:
-void video_change_settings(int scale_add, bool toggle_fullscreen);
-void calculate_mouse_scaling(void);
+void toggle_fullscreen(void);
+void handle_window_resize(void);
 
 //AR on my brand new Xbox360 controller using the D-pad would trigger left stick movement events... best controller of all time they say...sigh
 //so I disable it if the user uses a D-pad, and enable it if the user uses the stick and passes the dead zone
@@ -190,8 +189,8 @@ void EventHandler::SysEvent(Event &ev)
         case SDL_WINDOWEVENT_MINIMIZED:
             // Recalculate mouse scaling and padding. Note that we may end up
             // double-doing this, but whatever. Who cares.
-            calculate_mouse_scaling();
-            break;
+						handle_window_resize();
+						break;
         }
     case SDL_MOUSEWHEEL:
         if (m_ignore_wheel_events)
@@ -274,8 +273,6 @@ void EventHandler::SysEvent(Event &ev)
         case SDLK_RIGHT:        ev.key = JK_RIGHT; break;
 		case SDLK_LCTRL:        ev.key = JK_CTRL_L; break;
         case SDLK_RCTRL:        ev.key = JK_CTRL_R; break;
-        case SDLK_LGUI:         ev.key = JK_COMMAND; break;
-        case SDLK_RGUI:         ev.key = JK_COMMAND; break;
         case SDLK_LALT:         ev.key = JK_ALT_L; break;
         case SDLK_RALT:         ev.key = JK_ALT_R; break;
         case SDLK_LSHIFT:       ev.key = JK_SHIFT_L; break;
@@ -311,9 +308,8 @@ void EventHandler::SysEvent(Event &ev)
 				if(current_level->save("save0001.spe",1)==1)
 				{
 					the_game->show_help("Station secured!");
-					cache.sfx(1031)->play(127);//id 1031 should be save05.wav
-					settings.quick_load = get_save_filename_prefix();
-					settings.quick_load += "save0001.spe";
+					cache.sfx(1031)->play(127);//id 1031 should be save05.wav					
+					settings.quick_load = "save0001.spe";
 				}
 			}
 			ev.key = JK_F5;
@@ -333,7 +329,7 @@ void EventHandler::SysEvent(Event &ev)
 			{
 				if(settings.mouse_scale==0) settings.mouse_scale = 1;
 				else settings.mouse_scale = 0;
-				calculate_mouse_scaling();
+				handle_window_resize();
 			}
 			ev.key = JK_F7;
 			break;
@@ -349,18 +345,14 @@ void EventHandler::SysEvent(Event &ev)
 			break;
 
 		case SDLK_F10://toggle fullscreen, 			
-			if(ev.type==EV_KEYRELEASE) video_change_settings(0,true);
+			if(ev.type==EV_KEYRELEASE) toggle_fullscreen();
 			ev.key = JK_F10;
 			break;
 
-		case SDLK_F11://AR scale window up
-			if(ev.type==EV_KEYRELEASE) video_change_settings(1,false);
-			ev.key = JK_F10;//AR JK_F11 is undefined, JK_F10 isn't used anywhere else, so it doesn't matter
+		case SDLK_F11: // unused	
 			break;
 
-		case SDLK_F12://AR scale window down
-			if(ev.type==EV_KEYRELEASE) video_change_settings(-1,false);
-			ev.key = JK_F10;//AR JK_F12 is undefined, JK_F10 isn't used anywhere else, so it doesn't matter
+		case SDLK_F12: // unused
 			break;
 
 		case SDLK_PRINTSCREEN://grab a screenshot

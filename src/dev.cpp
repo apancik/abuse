@@ -879,10 +879,10 @@ void dev_init(int argc, char **argv)
   int i;
   prop=new property_manager;
 
-  std::string path_fin = get_save_filename_prefix();
-  path_fin += "defaults.prp";
+  // std::string path_fin = get_save_filename_prefix();
+  // path_fin += ;
 
-  prop->load(path_fin.c_str());
+  prop->load("defaults.prp");
 
   for (i=1; i<argc; i++)
   {
@@ -892,11 +892,11 @@ void dev_init(int argc, char **argv)
       start_edit=1;
       start_running=1;
       disable_autolight=1;
-      if (get_option("-2"))
-      {
-        printf("%s\n",symbol_str("no2"));
-        exit(0);
-      }
+      // if (get_option("-2"))
+      // {
+      //   printf("%s\n",symbol_str("no2"));
+      //   exit(0);
+      // }
     }
     else if (!strcmp(argv[i],"-fwin"))
       open_fwin=1;
@@ -953,12 +953,12 @@ void AR_dev_init()
 	dev=0;
 	prop=new property_manager;
 	
-	std::string path_fin = get_save_filename_prefix();
-	path_fin += "defaults.prp";
+	// std::string path_fin = get_save_filename_prefix();
+	// path_fin += "defaults.prp";
 
-	prop->load(path_fin.c_str());
+  prop->load("defaults.prp");
 
-	dev|=EDIT_MODE;
+  dev|=EDIT_MODE;
 	start_edit=1;
 	start_running=1;
 	disable_autolight=1;
@@ -3467,10 +3467,11 @@ void dev_cleanup()
 {
 	if (start_edit)
 	{
-		std::string path_fin = get_save_filename_prefix();
-		path_fin += "defaults.prp";
+		// std::string path_fin = get_save_filename_prefix();
+		// path_fin += "defaults.prp";
 
-		prop->load(path_fin.c_str());
+		// prop->load(path_fin.c_str());
+    prop->load("defaults.prp");
 	}
 
 	delete prop;

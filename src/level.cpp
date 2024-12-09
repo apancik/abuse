@@ -2219,20 +2219,20 @@ int level::save(char const *filename, int save_all)
 {
 	//AR clisp.case 223 saves the game in game
 
-    char name[255], bkname[255];
+    char name[255]; //, bkname[255];
 
-    sprintf( name, "%s%s", get_save_filename_prefix(), filename );
-    sprintf( bkname, "%slevsave.bak", get_save_filename_prefix() );
+    sprintf( name, "%s", filename );
+    // sprintf( bkname, "%slevsave.bak", get_save_filename_prefix() );
     if( !save_all && DEFINEDP( symbol_value( l_keep_backup ) ) &&
         symbol_value( l_keep_backup ) )   // make a backup
     {
         bFILE *fp = open_file( name, "rb" );    // does file already exist?
         if( !fp->open_failure() )
         {
-            unlink( bkname );
-            bFILE *bk = open_file( bkname, "wb" );
+            // unlink( bkname );
+            bFILE *bk = open_file("levsave.bak", "wb");
             if( bk->open_failure() )
-                dprintf("unable to open backup file %s\n", bkname );
+              dprintf("unable to open backup file levsave.bak\n");
             else
             {
                 uint8_t buf[0x1000];
@@ -2248,7 +2248,7 @@ int level::save(char const *filename, int save_all)
             }
             delete bk;
 #if (defined(__MACH__) || !defined(__APPLE__)) && (!defined(WIN32))
-            chmod( bkname, S_IRWXU | S_IRWXG | S_IRWXO );
+            chmod( "levsave.bak", S_IRWXU | S_IRWXG | S_IRWXO );
 #endif
         }
         delete fp;
@@ -2358,7 +2358,7 @@ int level::save(char const *filename, int save_all)
     {
         the_game->show_help( "Unable to open file for saving.\n" );
         printf( "\nFailed to save game.\n" );
-        printf( "I was trying to save to: '%s'\n\tPath: '%s'\n\tFile: '%s'\n", name, get_save_filename_prefix(), filename );
+        printf( "I was trying to save to file: '%s'\n", filename );
         printf( "\nPlease send an email to:\n\ttrandor@labyrinth.net.au\nwith these details.\nThanks.\n" );
         return 0;
     }

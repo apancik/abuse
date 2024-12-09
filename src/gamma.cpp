@@ -201,14 +201,10 @@ void gamma_correct(palette *&pal, int force_menu)
         delete gray_pal;
 
         if(!abort)
-        {
-            char *gammapath;
-            FILE *fp;
+        {            
+            FILE *fp;            
 
-            gammapath = (char *)malloc(strlen(get_save_filename_prefix()) + 10);
-            sprintf(gammapath, "%sgamma.lsp", get_save_filename_prefix());
-            
-			fp = fopen(gammapath, "wb");//AR open_FILE() didn't work
+            fp = prefix_fopen("gamma.lsp", "wb"); // AR open_FILE() didn't work
 
             if(fp)
             {
@@ -220,9 +216,7 @@ void gamma_correct(palette *&pal, int force_menu)
 
                 LSpace::Current = sp;
             }
-            else dprintf("Unable to write to file gamma.lsp\n");
-			
-			free(gammapath);
+            else dprintf("Unable to write to file gamma.lsp\n");						
         }
     }
 
